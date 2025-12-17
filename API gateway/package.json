@@ -1,0 +1,28 @@
+{
+  "name": "api-gateway",
+  "version": "1.0.0",
+  "description": "API gateway",
+  "license": "ISC",
+  "author": "-=V.I.M.E.R=-",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "node --env-file=.env esbuild.config.js"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.14.3",
+    "@grpc/proto-loader": "^0.8.0",
+    "axios": "^1.13.2",
+    "express": "^5.2.1",
+    "http-proxy": "^1.18.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/http-proxy": "^1.17.17",
+    "esbuild": "^0.27.1",
+    "grpc-tools": "^1.13.1",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
