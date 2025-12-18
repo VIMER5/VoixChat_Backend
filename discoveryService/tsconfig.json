@@ -12,7 +12,7 @@
     "noEmit": true,
     "paths": {
       "@controller/*": ["./controller/*"],
-      "@services/*": ["./services/*"]
+      "@proto/*": ["./proto/*"]
     }
   },
   "include": ["src"]

@@ -1,9 +1,23 @@
 import esbuild from "esbuild";
 import path from "path";
 import { fileURLToPath } from "url";
+import { spawn } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+let nodeProcess = null;
+
+function restartNode() {
+  if (nodeProcess) {
+    nodeProcess.kill("SIGTERM");
+  }
+
+  nodeProcess = spawn("node", ["dist/index.js"], {
+    stdio: "inherit",
+    env: process.env,
+  });
+}
 
 const ctx = await esbuild.context({
   entryPoints: [path.resolve(__dirname, "src/index.ts")],
@@ -14,12 +28,27 @@ const ctx = await esbuild.context({
   outdir: path.resolve(__dirname, "dist"),
   sourcemap: true,
   tsconfig: path.resolve(__dirname, "tsconfig.json"),
-  external: ["express", "axios", "http-proxy"],
+  external: ["express", "axios"],
+  plugins: [
+    {
+      name: "run-on-build",
+      setup(build) {
+        build.onEnd((result) => {
+          if (result.errors.length === 0) {
+            console.log("🔁 Перезапуск сервиса...");
+            restartNode();
+          } else {
+            console.log("❌ Билд с ошибками, перезапуск пропущен");
+          }
+        });
+      },
+    },
+  ],
 });
 
 if (process.argv.includes("--watch")) {
   await ctx.watch();
-  console.log("👀 esbuild watch запущен");
+  console.log("dev режим");
 } else {
   await ctx.rebuild();
   await ctx.dispose();
