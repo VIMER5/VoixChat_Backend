@@ -1,11 +1,9 @@
 syntax = "proto3";
-
 package discovery;
-
 service discoveryService {
   rpc registerService (serviceInfo) returns (infoResponse);
   rpc heartbeat (serviceInfo) returns (infoResponse);
-  rpc getServicesbyName (servicesNameRequest) return (ListServiceInstancesResponse);
+  rpc getServicesbyName (servicesNameRequest) returns (ListServiceInstancesResponse);
 }
 
 message serviceInfo {
