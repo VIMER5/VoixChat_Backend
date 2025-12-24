@@ -62,5 +62,23 @@ class discoveryController {
     }
   }
 }
+import grpc from "@grpc/grpc-js";
+import { serviceInfo, infoResponse } from "model/protoType.js";
+class discoveryController2 {
+  async registerService(
+    call: grpc.ServerUnaryCall<serviceInfo, infoResponse>,
+    callback: grpc.sendUnaryData<infoResponse>
+  ) {
+    const request: serviceInfo = call.request;
+    console.log("Request:", request.ipService, request.ipService);
 
-export default new discoveryController();
+    const response: infoResponse = {
+      success: true,
+      message: `Hello ${request.ipService}`,
+    };
+    callback(null, response);
+  }
+  [methodName: string]: grpc.UntypedHandleCall;
+}
+export default new discoveryController2();
+// export default new discoveryController();

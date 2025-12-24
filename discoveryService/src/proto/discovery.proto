@@ -12,12 +12,12 @@ message serviceInfo {
   int32 portService = 3;
 }
 message registerResponse {
-  bool access = 1;
+  bool success = 1;
   string message = 2;
 }
 
 message infoResponse {
-  bool access = 1;
+  bool success = 1;
   string message = 2;
 }
 
@@ -30,14 +30,8 @@ message ServiceInstance {
 message servicesNameRequest {
   string nameService = 1;
 }
-message ServiceInstance {
-  string id = 1;
-  string nameService = 2;
-  string host = 3;
-  int32 port = 4;
-}
 
 message ListServiceInstancesResponse {
-  bool access = 1;
+  bool success = 1;
   repeated ServiceInstance Instances = 2;
 }
