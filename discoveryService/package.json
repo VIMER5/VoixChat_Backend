@@ -7,17 +7,13 @@
   "type": "module",
   "scripts": {
     "dev": "node --env-file=.env esbuild.config.js --watch",
-    "build": "node --env-file=.env esbuild.config.js",
-    "proto:gen:ts": "npx proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=src/proto src/proto/discovery.proto",
-    "proto:gen:win": "protoc --plugin=protoc-gen-ts=node_modules\\.bin\\protoc-gen-ts.cmd --ts_out=import_style=commonjs,binary:src/proto -I src/proto src/proto/*.proto"
+    "build": "node --env-file=.env esbuild.config.js"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.14.3",
     "@grpc/proto-loader": "^0.8.0",
     "axios": "^1.13.2",
-    "express": "^5.2.1",
-    "protoc": "^33.2.0",
-    "ts-protoc-gen": "^0.15.0"
+    "express": "^5.2.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

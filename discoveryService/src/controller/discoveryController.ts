@@ -69,14 +69,64 @@ class discoveryController2 {
     call: grpc.ServerUnaryCall<serviceInfo, infoResponse>,
     callback: grpc.sendUnaryData<infoResponse>
   ) {
-    const request: serviceInfo = call.request;
-    console.log("Request:", request.ipService, request.ipService);
+    try {
+      const { nameService = null, ipService = null, portService = null } = call.request ?? {};
+      if (!nameService || !ipService || !portService)
+        return callback(
+          {
+            code: grpc.status.INVALID_ARGUMENT,
+            message: "nameService, ipService, portService is required",
+            name: "ValidationError",
+          },
+          null
+        );
+      await cacheServoce.addInstance({
+        name: nameService,
+        port: portService,
+        ip: ipService,
+      });
+      const response: infoResponse = {
+        success: true,
+        message: `add ${nameService}`,
+      };
+      callback(null, response);
+    } catch (err) {
+      console.log(
+        `Ебать-ебать, вот и опять пятисотка прилетела! А это значит кто-то получит а-та-та на сервере: ${err}`
+      );
+      callback({ code: grpc.status.UNKNOWN, message: `${err}` }, null);
+    }
+  }
 
-    const response: infoResponse = {
-      success: true,
-      message: `Hello ${request.ipService}`,
-    };
-    callback(null, response);
+  async heartbeat(call: grpc.ServerUnaryCall<serviceInfo, infoResponse>, callback: grpc.sendUnaryData<infoResponse>) {
+    try {
+      const { nameService = null, ipService = null, portService = null } = call.request ?? {};
+      if (!nameService || !ipService || !portService)
+        return callback(
+          {
+            code: grpc.status.INVALID_ARGUMENT,
+            message: "nameService, ipService, portService is required",
+            name: "ValidationError",
+          },
+          null
+        );
+      console.log(`сердцебиение💕 от ${nameService} ${ipService}:${portService}`);
+      await cacheServoce.upInstance({
+        name: nameService,
+        port: portService,
+        ip: ipService,
+      });
+      const response: infoResponse = {
+        success: true,
+        message: `10-4 ${nameService}`,
+      };
+      callback(null, response);
+    } catch (err) {
+      console.log(
+        `Ебать-ебать, вот и опять пятисотка прилетела! А это значит кто-то получит а-та-та на сервере: ${err}`
+      );
+      callback({ code: grpc.status.UNKNOWN, message: `${err}` }, null);
+    }
   }
   [methodName: string]: grpc.UntypedHandleCall;
 }

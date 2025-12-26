@@ -11,6 +11,10 @@ message serviceInfo {
   string ipService = 2;
   int32 portService = 3;
 }
+message registerResponse {
+  bool success = 1;
+  string message = 2;
+}
 
 message infoResponse {
   bool success = 1;
