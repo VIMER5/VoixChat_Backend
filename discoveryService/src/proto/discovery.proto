@@ -20,8 +20,8 @@ message infoResponse {
 message ServiceInstance {
   string id = 1;
   string nameService = 2;
-  string host = 3;
-  int32 port = 4;
+  string ipService = 3;
+  int32 portService = 4;
 }
 message servicesNameRequest {
   string nameService = 1;

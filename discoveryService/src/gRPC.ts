@@ -2,7 +2,7 @@ import grpc from "@grpc/grpc-js";
 import protoLoader from "@grpc/proto-loader";
 import path from "path";
 import { fileURLToPath } from "url";
-import discoveryController2 from "./controller/discoveryController.js";
+import discoveryController from "./controller/discoveryController.js";
 const { ipService = "0.0.0.0", portService = 50051, nameService } = process.env;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +15,7 @@ const packageDefinition = protoLoader.loadSync(path.join(__dirname, "proto", "di
 });
 const discoveryProto = grpc.loadPackageDefinition(packageDefinition) as any;
 const server = new grpc.Server();
-server.addService(discoveryProto.discovery.discoveryService.service, discoveryController2);
+server.addService(discoveryProto.discovery.discoveryService.service, discoveryController);
 
 function start() {
   server.bindAsync(`${ipService}:${portService}`, grpc.ServerCredentials.createInsecure(), (error, port) => {

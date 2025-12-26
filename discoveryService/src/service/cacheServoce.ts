@@ -1,3 +1,5 @@
+import { serviceInfo, ServiceInstance } from "model/protoType.js";
+import { randomUUID } from "crypto";
 class cacheDiscovery {
   private ttl: number;
   private cache = new Map<string, cacheInstances[]>();
@@ -5,39 +7,40 @@ class cacheDiscovery {
     this.ttl = ttl;
     this.checkttl();
   }
-  async addInstance(instance: Instance) {
+  async addInstance(instance: serviceInfo) {
     const thisinstance: cacheInstances = {
       ttl: Date.now() + this.ttl,
-      name: instance.name,
-      ip: instance.ip,
-      port: instance.port,
+      id: randomUUID(),
+      ...instance,
     };
-    if (!this.cache.has(instance.name)) {
-      this.cache.set(instance.name, [thisinstance]);
-      console.log(`Создан новый сервис ${instance.name}`);
+    if (!this.cache.has(instance.nameService)) {
+      this.cache.set(instance.nameService, [thisinstance]);
+      console.log(`Создан новый сервис ${instance.nameService}`);
       return;
     }
-    const instances = this.cache.get(instance.name)!;
-    const instanceIndex = instances.findIndex((item) => item.ip === instance.ip && item.port === instance.port);
+    const instances = this.cache.get(instance.nameService)!;
+    const instanceIndex = instances.findIndex(
+      (item) => item.ipService === instance.ipService && item.portService === instance.portService
+    );
     if (instanceIndex != -1) {
       instances[instanceIndex].ttl = Date.now() + this.ttl;
     } else {
-      console.log(`Добавлен новый инстанс сервиса ${instance.name}`);
+      console.log(`Добавлен новый инстанс сервиса ${instance.nameService}`);
       instances.push(thisinstance);
     }
   }
-  async upInstance(instance: Instance) {
-    if (!this.cache.has(instance.name)) return this.addInstance(instance);
-    const instances = this.cache.get(instance.name)!;
-    const instanceIndex = instances.findIndex((item) => item.ip === instance.ip && item.port === instance.port);
+  async upInstance(instance: serviceInfo) {
+    if (!this.cache.has(instance.nameService)) return this.addInstance(instance);
+    const instances = this.cache.get(instance.nameService)!;
+    const instanceIndex = instances.findIndex(
+      (item) => item.ipService === instance.ipService && item.portService === instance.portService
+    );
     if (instanceIndex != -1) {
       instances[instanceIndex].ttl = Date.now() + this.ttl;
-    } else {
-      return this.addInstance(instance);
-    }
+    } else return this.addInstance(instance);
   }
-  async getInstances(serviceName: string) {
-    return this.cache.get(serviceName);
+  async getInstances(serviceName: string): Promise<ServiceInstance[] | []> {
+    return this.cache.get(serviceName) ?? [];
   }
   checkttl() {
     setInterval(() => {
@@ -56,12 +59,7 @@ class cacheDiscovery {
     }, 10000);
   }
 }
-interface Instance {
-  name: string;
-  ip: string;
-  port: string | number;
-}
-interface cacheInstances extends Instance {
+interface cacheInstances extends ServiceInstance {
   ttl: number;
 }
 export default new cacheDiscovery(10000);
