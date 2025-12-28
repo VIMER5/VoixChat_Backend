@@ -3,9 +3,9 @@ import { randomUUID } from "crypto";
 class cacheDiscovery {
   private ttl: number;
   private cache = new Map<string, cacheInstances[]>();
-  constructor(ttl: number) {
+  constructor(ttl: number, interval: number) {
     this.ttl = ttl;
-    this.checkttl();
+    this.checkttl(interval);
   }
   async addInstance(instance: serviceInfo) {
     const thisinstance: cacheInstances = {
@@ -42,7 +42,7 @@ class cacheDiscovery {
   async getInstances(serviceName: string): Promise<ServiceInstance[] | []> {
     return this.cache.get(serviceName) ?? [];
   }
-  checkttl() {
+  checkttl(interval: number) {
     setInterval(() => {
       for (const [serviceName, instances] of this.cache) {
         let removedCount = 0;
@@ -56,10 +56,11 @@ class cacheDiscovery {
           console.log(`Удалено ${removedCount} инстансов из ${serviceName}`);
         }
       }
-    }, 10000);
+    }, interval);
   }
 }
 interface cacheInstances extends ServiceInstance {
   ttl: number;
 }
-export default new cacheDiscovery(10000);
+const { cacheTTL, checkingCacheTTL } = process.env;
+export default new cacheDiscovery(Number(cacheTTL), Number(checkingCacheTTL));

@@ -7,7 +7,7 @@ const { ipService = "0.0.0.0", portService = 50051, nameService } = process.env;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const packageDefinition = protoLoader.loadSync(path.join(__dirname, "proto", "discovery.proto"), {
+const packageDefinition = protoLoader.loadSync(path.join(__dirname, "..", "proto", "discovery.proto"), {
   longs: Number,
   enums: Number,
   defaults: true,

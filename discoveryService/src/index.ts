@@ -1,10 +1,3 @@
-import express from "express";
-import router from "./router.js";
-import path from "path";
-import { fileURLToPath } from "url";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 import gRPC from "./gRPC.js";
 
 await isValidENV();
@@ -12,8 +5,13 @@ gRPC.start();
 
 async function isValidENV() {
   let errorEnv: string[] = [];
-  if (!process.env.nameService) errorEnv.push("Укажите nameService в env");
-  if (!process.env.portService) errorEnv.push("Укажите portService в env");
+  const { nameService = null, portService = null, cacheTTL = null, checkingCacheTTL = null } = process.env;
+  if (!nameService) errorEnv.push("Укажите nameService в env");
+  if (!portService) errorEnv.push("Укажите portService в env");
+  const cacheTTLNum = cacheTTL ? Number(cacheTTL) : NaN;
+  if (isNaN(cacheTTLNum)) errorEnv.push("Укажите cacheTTL в env как число");
+  const checkingCacheTTLNum = checkingCacheTTL ? Number(checkingCacheTTL) : NaN;
+  if (isNaN(checkingCacheTTLNum)) errorEnv.push("Укажите checkingCacheTTL в env как число");
   if (errorEnv.length != 0) {
     for (let item of errorEnv) {
       console.log(item);

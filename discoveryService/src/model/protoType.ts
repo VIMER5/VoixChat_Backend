@@ -1,7 +1,10 @@
-export interface serviceInfo {
+export interface serviceInfoProto {
   nameService: string;
-  ipService: string;
   portService: number;
+}
+
+export interface serviceInfo extends serviceInfoProto {
+  ipService: string;
 }
 
 export interface infoResponse {

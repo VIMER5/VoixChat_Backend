@@ -8,8 +8,7 @@ service discoveryService {
 
 message serviceInfo {
   string nameService = 1;
-  string ipService = 2;
-  int32 portService = 3;
+  int32 portService = 2;
 }
 
 message infoResponse {
