@@ -1,4 +1,4 @@
-import { serviceInfo, ServiceInstance } from "model/protoType.js";
+import { serviceInfo, ServiceInstance } from "model/protoTypeDiscovery.js";
 import { randomUUID } from "crypto";
 class cacheDiscovery {
   private ttl: number;

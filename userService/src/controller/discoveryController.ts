@@ -1,6 +1,11 @@
 import cacheServoce from "service/cacheServoce.js";
 import grpc from "@grpc/grpc-js";
-import { serviceInfoProto, infoResponse, ListServiceInstancesResponse, servicesNameRequest } from "model/protoType.js";
+import {
+  serviceInfoProto,
+  infoResponse,
+  ListServiceInstancesResponse,
+  servicesNameRequest,
+} from "model/protoTypeDiscovery.js";
 class discoveryController {
   async registerService(
     call: grpc.ServerUnaryCall<serviceInfoProto, infoResponse>,

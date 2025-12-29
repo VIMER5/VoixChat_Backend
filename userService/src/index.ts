@@ -1,7 +1,9 @@
+import grpcClientd from "module/grpcClient/index.js";
 import gRPC from "./gRPC.js";
 
 await isValidENV();
-gRPC.start();
+// gRPC.start();
+let ff = new grpcClientd("discovery.proto");
 
 async function isValidENV() {
   let errorEnv: string[] = [];
