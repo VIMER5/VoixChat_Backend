@@ -1,11 +1,11 @@
 import { Sequelize } from "sequelize";
 import { models } from "./model/index.js";
 
-const { DataBase, host, port, login, pass } = process.env;
+const { db_DataBaseName, db_host, db_port, db_login, db_pass } = process.env;
 
-const db = new Sequelize(DataBase!, login!, pass!, {
-  host: host!,
-  port: Number(port),
+const db = new Sequelize(db_DataBaseName!, db_login!, db_pass!, {
+  host: db_host!,
+  port: Number(db_port),
   dialect: "mysql",
   logging: false,
 });
@@ -26,5 +26,6 @@ export async function connection() {
     console.log(`Процесс синхронизации моделей прошёл успешно.`);
   } catch (err) {
     console.log(err);
+    process.exit();
   }
 }

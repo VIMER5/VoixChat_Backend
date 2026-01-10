@@ -1,11 +1,14 @@
 import { connection } from "module/db/index.js";
+import errorMiddleware from "middleware/errorMiddleware.js";
+import router from "router/index.js";
 import express from "express";
 const port = process.env.server_port || 3030;
-// await connection();
 validationENV();
+// await connection();
 const app = express();
 app.use(express.json());
-
+app.use(router);
+app.use(errorMiddleware);
 app.listen(port, () => {
   console.log(`Мы стартанули на ${port}`);
 });
