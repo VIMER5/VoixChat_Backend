@@ -18,8 +18,11 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "express": "^5.2.1",
+    "joi": "^18.0.2",
     "mysql2": "^3.16.0",
+    "redis": "^5.10.0",
     "sequelize": "^6.37.7"
   }
 }
