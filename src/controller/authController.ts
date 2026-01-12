@@ -1,6 +1,5 @@
 import { Response, Request, NextFunction } from "express";
 import errorApi from "service/errorService.js";
-import { dataRegisterUser } from "types/authType.js";
 import { registerSchema } from "./../validators/auth.validator.js";
 import authService from "service/authService.js";
 class authController {
@@ -14,16 +13,22 @@ class authController {
       });
       if (error) throw errorApi.badRequest(error.message);
       const email: string = await authService.register(value);
-      // const { username = null, email = null, password = null } = req.body;
-      // if (!username || username.length! > 4) throw errorApi.badRequest("username должен состоять из 5 символов");
-      // if (!email || username.length! > 4) throw errorApi.badRequest("username должен состоять из 5 символов");
-      throw new Error("kjk");
+      res.status(201).json({
+        email: email,
+      });
     } catch (err) {
       next(err);
     }
   }
   async login(req: Request, res: Response, next: NextFunction) {
     try {
+      const body = req.body;
+      if (!body) throw errorApi.badRequest("Нет данных");
+      const { error, value } = registerSchema.validate(body, {
+        abortEarly: true,
+        stripUnknown: true,
+      });
+      if (error) throw errorApi.badRequest(error.message);
       throw new Error("kjk");
     } catch (err) {
       next(err);

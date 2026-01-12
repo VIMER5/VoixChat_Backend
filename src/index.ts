@@ -7,6 +7,7 @@ validationENV();
 
 import { connectionAllRedis } from "module/redis/redisConnect.js";
 import { poolRedis } from "module/redis/index.js";
+// test();
 await connectionAllRedis(poolRedis);
 await connection();
 

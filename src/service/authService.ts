@@ -1,6 +1,7 @@
 import { dataRegisterUser } from "types/authType.js";
 import { User } from "module/db/model/user.js";
 import errorApi from "./errorService.js";
+import mailerService from "./mailerService.js";
 import bcrypt from "bcryptjs";
 const saltbcrypt = await bcrypt.genSalt(10);
 class authService {
@@ -16,6 +17,7 @@ class authService {
       password: hashPass,
       email: data.email,
     });
+    mailerService.sendVerifyEmailURL(user.email, user.login);
     return user.email;
   }
 }
