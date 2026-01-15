@@ -28,7 +28,19 @@ const ctx = await esbuild.context({
   outdir: path.resolve(__dirname, "dist"),
   sourcemap: true,
   tsconfig: path.resolve(__dirname, "tsconfig.json"),
-  external: ["express", "axios", "mysql2", "sequelize", "joi", "bcryptjs", "redis", "resend", "nodemailer"],
+  external: [
+    "express",
+    "axios",
+    "mysql2",
+    "sequelize",
+    "joi",
+    "bcryptjs",
+    "redis",
+    "resend",
+    "nodemailer",
+    "cors",
+    "jsonwebtoken",
+  ],
   plugins: [
     {
       name: "run-on-build",

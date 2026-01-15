@@ -4,3 +4,8 @@ export interface dataRegisterUser {
   email: string;
   password: string;
 }
+
+export interface dataLoginUser {
+  login: string;
+  password: string;
+}

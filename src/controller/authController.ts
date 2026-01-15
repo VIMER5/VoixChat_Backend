@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from "express";
 import errorApi from "service/errorService.js";
-import { registerSchema } from "./../validators/auth.validator.js";
+import { registerSchema, loginSchema } from "./../validators/auth.validator.js";
 import authService from "service/authService.js";
 class authController {
   async register(req: Request, res: Response, next: NextFunction) {
@@ -24,12 +24,21 @@ class authController {
     try {
       const body = req.body;
       if (!body) throw errorApi.badRequest("Нет данных");
-      const { error, value } = registerSchema.validate(body, {
+      const { error, value } = loginSchema.validate(body, {
         abortEarly: true,
         stripUnknown: true,
       });
       if (error) throw errorApi.badRequest(error.message);
-      throw new Error("kjk");
+      const token = await authService.login(value);
+      if (token) {
+        res.cookie("refreshToken", token.refreshToken, {
+          maxAge: 172800000,
+          httpOnly: true,
+          sameSite: "lax",
+          secure: true,
+        });
+        return res.status(200).json({ access: token.accessToken });
+      }
     } catch (err) {
       next(err);
     }

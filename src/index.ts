@@ -2,6 +2,7 @@ import { connection } from "module/db/index.js";
 import errorMiddleware from "middleware/errorMiddleware.js";
 import router from "router/index.js";
 import express from "express";
+import cors from "cors";
 const port = process.env.server_port || 3030;
 validationENV();
 
@@ -12,6 +13,7 @@ await connectionAllRedis(poolRedis);
 await connection();
 
 const app = express();
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 app.use(router);
 app.use(errorMiddleware);
@@ -30,6 +32,16 @@ function validationENV() {
     "redis_pass",
     "redis_host",
     "redis_port",
+    "smtp_host",
+    "smtp_port",
+    "smtp_user",
+    "smtp_pass",
+    "domain",
+    "ttl_VerifyEmailURL",
+    "token_accessSecretKey",
+    "ttl_ACCESS_TOKEN",
+    "token_refreshSecretKey",
+    "ttl_REFRESH_TOKEN",
   ];
   let errorENV: string[] = [];
   for (const name of envRequired) if (!process.env[name]) errorENV.push(`${name} Required`);

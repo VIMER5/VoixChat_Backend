@@ -1,7 +1,8 @@
-import { dataRegisterUser } from "types/authType.js";
+import { dataRegisterUser, dataLoginUser } from "types/authType.js";
 import { User } from "module/db/model/user.js";
 import errorApi from "./errorService.js";
 import mailerService from "./mailerService.js";
+import tokenService from "./tokenService.js";
 import bcrypt from "bcryptjs";
 const saltbcrypt = await bcrypt.genSalt(10);
 class authService {
@@ -19,6 +20,15 @@ class authService {
     });
     mailerService.sendVerifyEmailURL(user.email, user.login);
     return user.email;
+  }
+  async login(data: dataLoginUser) {
+    const user = await User.findOne({ where: { login: data.login } });
+    if (user) {
+      if (await bcrypt.compare(data.password, user.password)) {
+        return await tokenService.createdToken(user.id, user.login);
+      }
+    }
+    throw errorApi.badRequest("Неверный логин или пароль");
   }
 }
 
