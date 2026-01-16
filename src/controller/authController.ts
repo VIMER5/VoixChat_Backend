@@ -2,6 +2,8 @@ import { Response, Request, NextFunction } from "express";
 import errorApi from "service/errorService.js";
 import { registerSchema, loginSchema } from "./../validators/auth.validator.js";
 import authService from "service/authService.js";
+import tokenService from "service/tokenService.js";
+import { type TokenPayLoad } from "types/authType.js";
 class authController {
   async register(req: Request, res: Response, next: NextFunction) {
     try {
@@ -39,6 +41,17 @@ class authController {
         });
         return res.status(200).json({ access: token.accessToken });
       }
+    } catch (err) {
+      next(err);
+    }
+  }
+  async validate(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { access = null } = req.body;
+      if (!access) errorApi.unauthorized("нет токена");
+      const payLoad = await tokenService.isValidAccessToken(access);
+      if (typeof payLoad == "boolean") throw tokenService.isValidAccessToken("Токен недействительный");
+      res.status(200).json(payLoad);
     } catch (err) {
       next(err);
     }

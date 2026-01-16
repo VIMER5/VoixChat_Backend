@@ -3,6 +3,7 @@ import authController from "controller/authController.js";
 const auth = express.Router();
 auth.post("/register", authController.register);
 auth.post("/login", authController.login);
+auth.post("/validate", authController.validate);
 auth.get("/logout", authController.logout);
 auth.post("/refresh", authController.refresh);
 auth.post("/forgot-password", authController.forgotPassword);
