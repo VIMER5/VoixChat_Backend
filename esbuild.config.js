@@ -40,6 +40,7 @@ const ctx = await esbuild.context({
     "nodemailer",
     "cors",
     "jsonwebtoken",
+    "cookie-parser",
   ],
   plugins: [
     {

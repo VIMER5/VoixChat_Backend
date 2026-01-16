@@ -19,6 +19,14 @@ class tokenService {
       return false;
     }
   }
+  async isValidRefreshToken(token: string): Promise<TokenPayLoad | false> {
+    try {
+      const verifyToken: TokenPayLoad = JWT.verify(token, process.env.token_refreshSecretKey!) as TokenPayLoad;
+      return verifyToken;
+    } catch (err) {
+      return false;
+    }
+  }
 }
 
 export default new tokenService();
