@@ -30,7 +30,7 @@ class authController {
         abortEarly: true,
         stripUnknown: true,
       });
-      if (error) throw errorApi.badRequest(error.message);
+      if (error) throw errorApi.badRequest("Неверный логин или пароль");
       const token = await authService.login(value);
       if (token) {
         res.cookie("refreshToken", token.refreshToken, {
