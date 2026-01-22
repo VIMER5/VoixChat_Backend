@@ -10,4 +10,7 @@ export default class errorApi extends Error {
   static unauthorized(message: string) {
     return new errorApi(401, message);
   }
+  static notFound(message: string) {
+    return new errorApi(404, message);
+  }
 }

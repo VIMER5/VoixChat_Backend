@@ -41,6 +41,8 @@ const ctx = await esbuild.context({
     "cors",
     "jsonwebtoken",
     "cookie-parser",
+    "socket.io",
+    "http",
   ],
   plugins: [
     {

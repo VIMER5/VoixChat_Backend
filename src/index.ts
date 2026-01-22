@@ -4,6 +4,11 @@ import router from "router/index.js";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import { onConnection } from "./socket/socket.js";
+import { guardSocketIo } from "middleware/guardMiddleware.js";
+import { initSocketIO, getIO } from "./socket/index.js";
 const port = process.env.server_port || 3030;
 validationENV();
 
@@ -19,7 +24,20 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(router);
 app.use(errorMiddleware);
-app.listen(port, () => {
+
+const httpServer = createServer(app);
+initSocketIO(
+  new Server(httpServer, {
+    cors: {
+      origin: "http://localhost:5173",
+      credentials: true,
+    },
+  }),
+);
+let io = getIO();
+io.use(guardSocketIo);
+io.on("connection", (socket) => onConnection(io, socket));
+httpServer.listen(port, () => {
   console.log(`Мы стартанули на ${port}`);
 });
 
