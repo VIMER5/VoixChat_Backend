@@ -5,7 +5,7 @@ const fromSupport = "VoixChat Support <support@resend.dev>";
 class mailerService {
   async sendVerifyEmailURL(mail: string, login: string) {
     const hash = crypto.randomBytes(20).toString("hex");
-    const url = `${process.env.domain}confirmEmail/${hash}`;
+    const url = `${process.env.urlVerifyEmail}${hash}`;
     await poolRedis.сonfirmationСodes.redis.set(hash, mail, {
       EX: Number(process.env.ttl_VerifyEmailURL),
       NX: true,

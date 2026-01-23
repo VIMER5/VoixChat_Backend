@@ -3,6 +3,7 @@ import errorApi from "service/errorService.js";
 import { registerSchema, loginSchema } from "./../validators/auth.validator.js";
 import authService from "service/authService.js";
 import tokenService from "service/tokenService.js";
+import { CustomRequest } from "./../types/customRequestType.js";
 import { type TokenPayLoad } from "types/authType.js";
 class authController {
   async register(req: Request, res: Response, next: NextFunction) {
@@ -82,14 +83,25 @@ class authController {
       next(err);
     }
   }
-  async logout(req: Request, res: Response, next: NextFunction) {
+  async sendVerifyEmailURL(req: CustomRequest, res: Response, next: NextFunction) {
     try {
-      throw new Error("kjk");
+      await authService.sendVerifyEmailURL(req.userId!);
+      res.status(200).json();
     } catch (err) {
       next(err);
     }
   }
-  async refresh(req: Request, res: Response, next: NextFunction) {
+  async verifyEmailURL(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { token = null } = req.params;
+      if (!token) throw errorApi.badRequest("Нужен токен подтверждения");
+      await authService.verifyEmailURL(token);
+      res.status(202).json();
+    } catch (err) {
+      next(err);
+    }
+  }
+  async logout(req: Request, res: Response, next: NextFunction) {
     try {
       throw new Error("kjk");
     } catch (err) {

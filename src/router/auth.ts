@@ -1,13 +1,17 @@
 import express from "express";
 import authController from "controller/authController.js";
+import guardMiddleware from "./../middleware/guardMiddleware.js";
 const auth = express.Router();
 auth.post("/register", authController.register);
 auth.post("/login", authController.login);
 auth.post("/validate", authController.validate);
 auth.post("/refresh", authController.tokenUpdateByRefreshToken);
-
-auth.get("/logout", authController.logout);
-auth.post("/forgot-password", authController.forgotPassword);
-auth.post("/reset-password/:token", authController.resetPassword);
-auth.post("/password", authController.password);
+auth.get("/VerifyEmail/:token", authController.verifyEmailURL);
+const authUser = express.Router();
+auth.use("/user", guardMiddleware, authUser);
+authUser.get("/sendVerifyEmailURL", authController.sendVerifyEmailURL);
+authUser.get("/logout", authController.logout);
+// auth.post("/forgot-password", authController.forgotPassword);
+// auth.post("/reset-password/:token", authController.resetPassword);
+// auth.post("/password", authController.password);
 export default auth;

@@ -1,9 +1,11 @@
 import { dataRegisterUser, dataLoginUser } from "types/authType.js";
 import { User } from "module/db/model/user.js";
+import { poolRedis } from "module/redis/index.js";
 import errorApi from "./errorService.js";
 import mailerService from "./mailerService.js";
 import tokenService from "./tokenService.js";
 import bcrypt from "bcryptjs";
+import { getIO } from "socket/index.js";
 const saltbcrypt = await bcrypt.genSalt(10);
 class authService {
   async register(data: dataRegisterUser) {
@@ -29,6 +31,23 @@ class authService {
       }
     }
     throw errorApi.badRequest("Неверный логин или пароль");
+  }
+  async sendVerifyEmailURL(userID: number) {
+    const user = await User.findOne({ where: { id: userID } });
+    if (!user) throw errorApi.notFound("Пользователь не найден");
+    await mailerService.sendVerifyEmailURL(user.email, user.login);
+  }
+
+  async verifyEmailURL(token: string) {
+    const io = getIO();
+    const mail = await poolRedis.сonfirmationСodes.redis.get(token);
+    if (!mail) throw errorApi.notFound("Подтверждение не найдено");
+    const user = await User.findOne({ where: { email: mail } });
+    if (!user) throw errorApi.notFound("Пользователь не найден");
+    await user.update({ emailConfirmed: true }, { where: { email: mail } });
+    io.to(`user:${user.id}`).emit("emailConfirmed", {
+      body: true,
+    });
   }
 }
 
