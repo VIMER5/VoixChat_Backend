@@ -1,5 +1,5 @@
 import { Sequelize } from "sequelize";
-import { models } from "./model/index.js";
+import { models, setupAssociations } from "./model/index.js";
 
 const { db_DataBaseName, db_host, db_port, db_login, db_pass } = process.env;
 
@@ -15,6 +15,9 @@ async function initModels() {
     model.initModel(db);
     console.log(`Модель ${model.name} инициализирована`);
   }
+
+  setupAssociations();
+  console.log("Связи моделей настроены");
 }
 
 export async function connection() {

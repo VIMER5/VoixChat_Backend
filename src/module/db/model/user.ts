@@ -1,4 +1,4 @@
-import { Model, DataTypes, Sequelize } from "sequelize";
+import { Model, DataTypes, Sequelize, NonAttribute } from "sequelize";
 
 export class User extends Model {
   declare id: number;
@@ -9,6 +9,8 @@ export class User extends Model {
   declare avatar: string;
   declare status: string;
   declare emailConfirmed: boolean;
+  declare Friends?: NonAttribute<User[]>;
+  declare AddedBy?: NonAttribute<User[]>;
 
   static initModel(sequelize: Sequelize) {
     User.init(
@@ -22,7 +24,7 @@ export class User extends Model {
         status: { type: DataTypes.STRING, allowNull: true, defaultValue: null },
         emailConfirmed: { type: DataTypes.BOOLEAN, defaultValue: false },
       },
-      { sequelize: sequelize, tableName: "users" }
+      { sequelize: sequelize, tableName: "users" },
     );
   }
 }

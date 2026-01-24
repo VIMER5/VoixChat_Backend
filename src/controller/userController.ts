@@ -3,6 +3,7 @@ import errorApi from "service/errorService.js";
 import userService from "service/userService.js";
 import { CustomRequest } from "types/customRequestType.js";
 import { getIO } from "./../socket/index.js";
+import { User } from "module/db/model/user.js";
 class user {
   async getCurrentUser(req: CustomRequest, res: Response, next: NextFunction) {
     try {
@@ -17,12 +18,28 @@ class user {
     try {
       if (!req.userId) throw errorApi.notFound("что-то пошло не так");
       const data = await userService.getUser(req.userId);
-      const io = getIO();
-      io.to(`user:${req.userId}`).emit("test", {
-        title: "Новое сообщение",
-        body: "message",
+      const user = await User.findByPk(2, {
+        include: [
+          {
+            model: User,
+            as: "Friends",
+            through: {
+              where: { status: "accepted" },
+            },
+            attributes: ["id", "username", "avatar"],
+          },
+          {
+            model: User,
+            as: "AddedBy",
+            through: {
+              where: { status: "accepted" },
+            },
+            attributes: ["id", "username", "avatar"],
+          },
+        ],
       });
-      res.status(200).json(data);
+      const allFriends = [...user?.Friends!, ...user?.AddedBy!];
+      res.status(200).json(allFriends);
     } catch (err) {
       next(err);
     }
