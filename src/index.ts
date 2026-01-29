@@ -63,6 +63,7 @@ function validationENV() {
     "token_refreshSecretKey",
     "ttl_REFRESH_TOKEN",
     "urlVerifyEmail",
+    "cdn_url",
   ];
   let errorENV: string[] = [];
   for (const name of envRequired) if (!process.env[name]) errorENV.push(`${name} Required`);

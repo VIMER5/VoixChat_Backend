@@ -7,6 +7,15 @@ import tokenService from "./tokenService.js";
 import bcrypt from "bcryptjs";
 import { getIO } from "socket/index.js";
 const saltbcrypt = await bcrypt.genSalt(10);
+const avatars = [
+  "e4c99baaff6db314",
+  "40d494e0c33a917e",
+  "c841cd87cd04e839",
+  "798d3c4123886829",
+  "44534ed963a2d0d0",
+  "016272aaa1952190",
+  "44534ed963a2d0d0",
+];
 class authService {
   async register(data: dataRegisterUser) {
     const checkLogin = await User.findOne({ where: { login: data.login } });
@@ -14,11 +23,13 @@ class authService {
     const checkEmail = await User.findOne({ where: { email: data.email } });
     if (checkEmail) throw errorApi.badRequest(`Почта ${data.email} уже используется`);
     const hashPass = await bcrypt.hash(data.password, saltbcrypt);
+
     const user = await User.create({
       login: data.login,
       username: data.username,
       password: hashPass,
       email: data.email,
+      avatar: avatars[Math.floor(Math.random() * avatars.length)],
     });
     mailerService.sendVerifyEmailURL(user.email, user.login);
     return user.email;

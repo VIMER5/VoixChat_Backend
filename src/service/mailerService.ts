@@ -1,7 +1,7 @@
 import { transporter } from "module/mailer/index.js";
 import crypto from "crypto";
 import { poolRedis } from "module/redis/index.js";
-const fromSupport = "VoixChat Support <support@resend.dev>";
+const fromSupport = "VoixChat Support <support@voixchat.ru>";
 class mailerService {
   async sendVerifyEmailURL(mail: string, login: string) {
     const hash = crypto.randomBytes(20).toString("hex");
