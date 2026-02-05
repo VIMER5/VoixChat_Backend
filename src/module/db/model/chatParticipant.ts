@@ -1,43 +1,41 @@
 import { Model, DataTypes, Sequelize, NonAttribute } from "sequelize";
 
-export class Friendship extends Model {
+export class ChatParticipant extends Model {
   declare id: number;
   declare userId: number;
-  declare friendId: number;
-  declare status: "pending" | "accepted" | "blocked";
+  declare chatId: string;
+  declare lastReadMsgId: number;
 
   static initModel(sequelize: Sequelize) {
-    Friendship.init(
+    ChatParticipant.init(
       {
         id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
         userId: {
           type: DataTypes.INTEGER,
           allowNull: false,
           references: {
-            model: "Users",
+            model: "users",
             key: "id",
           },
         },
-        friendId: {
-          type: DataTypes.INTEGER,
+        chatId: {
+          type: DataTypes.UUID,
           allowNull: false,
           references: {
-            model: "Users",
+            model: "chats",
             key: "id",
           },
         },
-        status: {
-          type: DataTypes.ENUM("pending", "accepted", "blocked"),
-          defaultValue: "pending",
-        },
+
+        lastReadMsgId: { type: DataTypes.INTEGER, defaultValue: 0 },
       },
       {
-        sequelize: sequelize,
-        tableName: "Friendship",
+        sequelize,
+        tableName: "chat_participants",
         indexes: [
           {
             unique: true,
-            fields: ["userId", "friendId"],
+            fields: ["userId", "chatId"],
           },
         ],
       },

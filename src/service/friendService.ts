@@ -4,9 +4,10 @@ import { Friendship } from "module/db/model/friendship.js";
 import { Op } from "sequelize";
 import { getIO } from "socket/index.js";
 const { cdn_url } = process.env;
+type AssociationKeys = "Friends" | "AddedBy";
 class friendService {
   async getFriends(userId: number) {
-    return await this.GetFriendsC(userId, "accepted");
+    return await this.GetFriendsC(userId, "accepted", ["AddedBy", "Friends"]);
   }
   async addFriend(login: string, userId: number, friendId: number) {
     const friend = await User.findOne({
@@ -43,7 +44,7 @@ class friendService {
   }
 
   async getFriendRequest(userId: number) {
-    return await this.GetFriendsC(userId, "pending");
+    return await this.GetFriendsC(userId, "pending", "AddedBy");
   }
   async normolizeUrlAvatar(data: any[]): Promise<any[]> {
     let res = data.map((item: any) => {
@@ -54,28 +55,34 @@ class friendService {
     return res;
   }
 
-  private async GetFriendsC(userId: number, status: "accepted" | "pending") {
+  private async GetFriendsC(
+    userId: number,
+    status: "accepted" | "pending",
+    include: AssociationKeys | AssociationKeys[],
+  ) {
+    const Associations = {
+      Friends: {
+        model: User,
+        as: "Friends",
+        attributes: ["id", "username", "login", "avatar", "status"],
+        through: {
+          where: { status },
+          attributes: ["status"],
+        },
+      },
+      AddedBy: {
+        model: User,
+        as: "AddedBy",
+        attributes: ["id", "username", "login", "avatar", "status"],
+        through: {
+          where: { status },
+          attributes: ["status"],
+        },
+      },
+    };
+    const includeArray = Array.isArray(include) ? include.map((item) => Associations[item]) : [Associations[include]];
     const friends = await User.findByPk(userId, {
-      include: [
-        {
-          model: User,
-          as: "Friends",
-          attributes: ["id", "username", "login", "avatar", "status"],
-          through: {
-            where: { status },
-            attributes: ["status"],
-          },
-        },
-        {
-          model: User,
-          as: "AddedBy",
-          attributes: ["id", "username", "login", "avatar", "status"],
-          through: {
-            where: { status },
-            attributes: ["status"],
-          },
-        },
-      ],
+      include: includeArray,
     });
     if (friends) {
       if (friends.AddedBy && friends.Friends && friends.AddedBy.length > 0 && friends.Friends.length > 0) {

@@ -9,6 +9,7 @@ import { Server } from "socket.io";
 import { onConnection } from "./socket/socket.js";
 import { guardSocketIo } from "middleware/guardMiddleware.js";
 import { initSocketIO, getIO } from "./socket/index.js";
+import { setupSwagger } from "./configs/swagger.js";
 const port = process.env.server_port || 3030;
 validationENV();
 
@@ -22,7 +23,9 @@ const app = express();
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(cookieParser());
 app.use(express.json());
+
 app.use(router);
+setupSwagger(app);
 app.use(errorMiddleware);
 
 const httpServer = createServer(app);

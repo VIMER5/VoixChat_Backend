@@ -43,6 +43,8 @@ const ctx = await esbuild.context({
     "cookie-parser",
     "socket.io",
     "http",
+    "swagger-jsdoc",
+    "swagger-ui-express",
   ],
   plugins: [
     {

@@ -6,6 +6,28 @@ import tokenService from "service/tokenService.js";
 import { CustomRequest } from "./../types/customRequestType.js";
 import { type TokenPayLoad } from "types/authType.js";
 class authController {
+  /**
+   * @swagger
+   * /api/auth/register:
+   *   post:
+   *     summary: Регистрация нового пользователя
+   *     tags: [Auth]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/RegisterRequest'
+   *     responses:
+   *       201:
+   *         description: Пользователь успешно зарегистрирован
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/RegisterResponse'
+   *       400:
+   *         description: Некорректные данные
+   */
   async register(req: Request, res: Response, next: NextFunction) {
     try {
       const body = req.body;
@@ -23,6 +45,28 @@ class authController {
       next(err);
     }
   }
+  /**
+   * @swagger
+   * /api/auth/login:
+   *   post:
+   *     summary: Вход в систему
+   *     tags: [Auth]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/LoginRequest'
+   *     responses:
+   *       200:
+   *         description: Успешный вход
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/LoginResponse'
+   *       400:
+   *         description: Некорректные данные
+   */
   async login(req: Request, res: Response, next: NextFunction) {
     try {
       const body = req.body;
@@ -46,6 +90,24 @@ class authController {
       next(err);
     }
   }
+  /**
+   * @swagger
+   * /api/auth/validate:
+   *   post:
+   *     summary: Валидация access token
+   *     tags: [Auth]
+   *     security:
+   *      - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Токен валиден
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/ValidateResponse'
+   *       401:
+   *         description: Токен недействительный
+   */
   async validate(req: Request, res: Response, next: NextFunction) {
     try {
       const { authorization = null } = req.headers;
@@ -59,6 +121,33 @@ class authController {
       next(err);
     }
   }
+  /**
+   * @swagger
+   * /api/auth/refresh:
+   *   post:
+   *     summary: Обновление access token по refresh token
+   *     description: Обновляет access token используя refresh token из cookies. Возвращает новый access token.
+   *     tags: [Auth]
+   *     security:
+   *       - cookieAuth: []
+   *     responses:
+   *       200:
+   *         description: Токен успешно обновлен
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/LoginResponse'
+   *         headers:
+   *           Set-Cookie:
+   *             schema:
+   *               type: string
+   *               example: refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Max-Age=172800000; SameSite=Lax; Secure
+   *       401:
+   *         description: Refresh token недействителен или отсутствует
+   *         content:
+   *           application/json:
+   *             example: "Токен недействительный"
+   */
   async tokenUpdateByRefreshToken(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken = null } = req.cookies;
@@ -83,6 +172,23 @@ class authController {
       next(err);
     }
   }
+  /**
+   * @swagger
+   * /api/auth/user/sendVerifyEmailURL:
+   *   get:
+   *     summary: Отправка письма для подтверждения email
+   *     description: Отправляет письмо с ссылкой для подтверждения email на адрес текущего пользователя
+   *     tags: [Auth]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Письмо успешно отправлено
+   *       401:
+   *         description: Пользователь не авторизован
+   *       404:
+   *         description: Пользователь не найден
+   */
   async sendVerifyEmailURL(req: CustomRequest, res: Response, next: NextFunction) {
     try {
       await authService.sendVerifyEmailURL(req.userId!);
@@ -91,6 +197,29 @@ class authController {
       next(err);
     }
   }
+  /**
+   * @swagger
+   * /api/auth/VerifyEmail/{token}:
+   *   get:
+   *     summary: Подтверждение email по токену
+   *     description: Подтверждает email пользователя по токену из ссылки в письме
+   *     tags: [Auth]
+   *     parameters:
+   *       - in: path
+   *         name: token
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Токен подтверждения email из ссылки
+   *         example: "e56e92d5d4c369a950d39f85f70dbd8cf741e369"
+   *     responses:
+   *       202:
+   *         description: Email успешно подтвержден
+   *       400:
+   *         description: Неверный или просроченный токен
+   *       404:
+   *         description: Пользователь не найден
+   */
   async verifyEmailURL(req: Request, res: Response, next: NextFunction) {
     try {
       const { token = null } = req.params;

@@ -5,6 +5,26 @@ import { CustomRequest } from "types/customRequestType.js";
 import { getIO } from "./../socket/index.js";
 import { User } from "module/db/model/user.js";
 class user {
+  /**
+   * @swagger
+   * /api/user/:
+   *   get:
+   *     summary: Получение данных текущего пользователя
+   *     tags: [User]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Данные пользователя успешно получены
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/CurrentUserInfoResponse'
+   *       401:
+   *         description: Пользователь не авторизован
+   *       404:
+   *         description: Пользователь не найден
+   */
   async getCurrentUser(req: CustomRequest, res: Response, next: NextFunction) {
     try {
       if (!req.userId) throw errorApi.notFound("что-то пошло не так");
