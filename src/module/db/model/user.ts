@@ -1,5 +1,6 @@
 import { Model, DataTypes, Sequelize, NonAttribute } from "sequelize";
-
+import { Chat } from "./chat.js";
+import { ChatInfo } from "./../../../types/bdType.js";
 export class User extends Model {
   declare id: number;
   declare login: string;
@@ -11,6 +12,7 @@ export class User extends Model {
   declare emailConfirmed: boolean;
   declare Friends?: NonAttribute<User[]>;
   declare AddedBy?: NonAttribute<User[]>;
+  declare myChat?: NonAttribute<ChatInfo[]>;
 
   static initModel(sequelize: Sequelize) {
     User.init(

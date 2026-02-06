@@ -160,6 +160,83 @@ const options: swaggerJsdoc.Options = {
             },
           },
         },
+        GetMyChatsResponse: {
+          type: "object",
+          properties: {
+            login: {
+              type: "string",
+            },
+            myChat: {
+              type: "array",
+              description: "Список чатов пользователя",
+              items: {
+                $ref: "#/components/schemas/ChatInfo",
+              },
+            },
+          },
+        },
+        ChatInfo: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+              description: "ID чата",
+            },
+            type: {
+              type: "string",
+              description: "Тип чата",
+              enum: ["private", "group"],
+            },
+            name: {
+              type: "string",
+              description: "Название чата",
+            },
+            avatar: {
+              type: "string",
+              description: "Ссылка на аватар чата",
+            },
+            chatMembers: {
+              type: "array",
+              description: "Другие участники чата",
+              items: {
+                $ref: "#/components/schemas/ChatMember",
+              },
+            },
+            _ChatParticipant: {
+              $ref: "#/components/schemas/ChatParticipant",
+            },
+          },
+        },
+        ChatMember: {
+          type: "object",
+          properties: {
+            username: {
+              type: "string",
+              description: "Имя пользователя",
+            },
+            avatar: {
+              type: "string",
+              description: "Аватар пользователя",
+            },
+            id: {
+              type: "number",
+              description: "ID пользователя",
+            },
+          },
+        },
+        ChatParticipant: {
+          type: "object",
+          properties: {
+            lastReadMsgId: {
+              type: "number",
+              description: "ID последнего прочитанного сообщения",
+            },
+            updatedAt: {
+              type: "string",
+              format: "date-time",
+            },
+          },
+        },
       },
       responses: {
         UnauthorizedError: {
@@ -196,6 +273,10 @@ const options: swaggerJsdoc.Options = {
       {
         name: "Friends",
         description: "Операции с друзьями",
+      },
+      {
+        name: "Chat",
+        description: "Операции с чатами",
       },
     ],
   },
