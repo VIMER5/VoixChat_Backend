@@ -2,6 +2,7 @@ import { User } from "./user.js";
 import { Friendship } from "./friendship.js";
 import { Chat } from "./chat.js";
 import { ChatParticipant } from "./chatParticipant.js";
+import { Message } from "./message.js";
 export function setupAssociations() {
   User.belongsToMany(User, {
     through: Friendship,
@@ -27,6 +28,10 @@ export function setupAssociations() {
     foreignKey: "chatId",
     otherKey: "userId",
   });
+  Chat.hasMany(Message, { foreignKey: "chatId" });
+  Message.belongsTo(Chat, { foreignKey: "chatId" });
+  User.hasMany(Message, { foreignKey: "userId" });
+  Message.belongsTo(User, { foreignKey: "userId" });
 }
 
-export const models = [User, Friendship, Chat, ChatParticipant];
+export const models = [User, Friendship, Chat, ChatParticipant, Message];

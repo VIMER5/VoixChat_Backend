@@ -3,6 +3,10 @@ import { ChatParticipant } from "module/db/model/chatParticipant.js";
 import { User } from "module/db/model/user.js";
 import { Op } from "sequelize";
 import appService from "./appService.js";
+import errorApi from "./errorService.js";
+import { getIO } from "socket/index.js";
+import { Message } from "module/db/model/message.js";
+import { newMessageRequest } from "types/ChatsType.js";
 class chatsService {
   async getMyChats(userId: number) {
     let data = await User.findByPk(userId, {
@@ -27,17 +31,141 @@ class chatsService {
                 attributes: [],
               },
             },
+            {
+              required: false,
+              model: Message,
+              limit: 20,
+              attributes: ["id", "content", "type", "createdAt", "updatedAt", "userId", "chatId"],
+              include: [
+                {
+                  model: User,
+                  attributes: ["username", "avatar"],
+                },
+              ],
+            },
           ],
         },
       ],
     });
-    if (data) {
-      data.myChat!.map(async (item) => {
-        item.avatar = await appService.normolizeUrlAvatarStr(item.avatar);
-        item.chatMembers = await appService.normolizeUrlAvatar(item.chatMembers);
-      });
+    if (!data) return null;
+    const result = data.get({ plain: true });
+    if (result.myChat) {
+      await Promise.all(
+        result.myChat.map(async (chat: any) => {
+          chat.avatar = await appService.normolizeUrlAvatarStr(chat.avatar);
+          chat.chatMembers = await appService.normolizeUrlAvatar(chat.chatMembers);
+          if (chat._Messages && chat._Messages.length > 0) {
+            await Promise.all(
+              chat._Messages.map(async (msg: any) => {
+                if (msg._User) {
+                  msg._User.avatar = await appService.normolizeUrlAvatarStr(msg._User.avatar);
+                }
+                delete msg.userId;
+                delete msg.chatId;
+              }),
+            );
+          }
+        }),
+      );
     }
-    return data;
+    return result;
+  }
+  async getChatById(chatId: string, userId: number) {
+    const isParticipant = await ChatParticipant.findOne({
+      where: { chatId, userId },
+    });
+    if (!isParticipant) throw errorApi.forbidden("Вы не являетесь участником этого чата");
+    const chatCurrent = await Chat.findByPk(chatId, {
+      attributes: ["id", "type", "name", "avatar"],
+      include: [
+        {
+          model: User,
+          as: "chatMembers",
+          where: {
+            id: { [Op.ne]: userId },
+          },
+          attributes: ["id", "username", "avatar"],
+          through: {
+            attributes: [],
+          },
+        },
+        {
+          required: false,
+          model: Message,
+          limit: 20,
+          attributes: ["id", "content", "type", "createdAt", "updatedAt", "userId", "chatId"],
+          include: [
+            {
+              model: User,
+              attributes: ["username", "avatar"],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!chatCurrent) throw errorApi.notFound("Чат не найден");
+
+    const chat = chatCurrent.get({ plain: true });
+    chat.avatar = await appService.normolizeUrlAvatarStr(chat.avatar);
+    if (chat.chatMembers) {
+      chat.chatMembers = await appService.normolizeUrlAvatar(chat.chatMembers);
+    }
+    if (chat._Messages && chat._Messages.length > 0) {
+      await Promise.all(
+        chat._Messages.map(async (msg: any) => {
+          if (msg._User) msg._User.avatar = await appService.normolizeUrlAvatarStr(msg._User.avatar);
+          delete msg.userId;
+          delete msg.chatId;
+        }),
+      );
+    }
+    return {
+      ...chat,
+      _ChatParticipant: {
+        lastReadMsgId: isParticipant.lastReadMsgId,
+        updatedAt: isParticipant.updatedAt,
+      },
+    };
+  }
+  async sendMessage(data: newMessageRequest) {
+    const chat = await this.getChatById(data.chatId, data.userId);
+    const io = getIO();
+    if (chat) {
+      let message = await Message.create({
+        content: data.content,
+        userId: data.userId,
+        chatId: data.chatId,
+        type: data.type,
+      });
+
+      await message.reload({
+        include: [
+          {
+            model: User,
+            attributes: ["username", "avatar"],
+          },
+        ],
+      });
+      if (message._User) {
+        const urlAva = await appService.normolizeUrlAvatarStr(message._User.avatar);
+        if (urlAva) message._User.avatar = urlAva;
+      }
+      io.to(`chat:${data.chatId}`).emit("newMessage", {
+        chatId: data.chatId,
+        body: {
+          id: message.id,
+          content: message.content,
+          type: message.type,
+          createdAt: message.createdAt,
+          updatedAt: message.updatedAt,
+          _User: {
+            ...message._User!.dataValues,
+          },
+        },
+      });
+      return "ok";
+    }
   }
 }
 

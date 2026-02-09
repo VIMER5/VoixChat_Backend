@@ -5,7 +5,7 @@ export class ChatParticipant extends Model {
   declare userId: number;
   declare chatId: string;
   declare lastReadMsgId: number;
-
+  declare updatedAt?: Date;
   static initModel(sequelize: Sequelize) {
     ChatParticipant.init(
       {

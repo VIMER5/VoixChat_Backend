@@ -36,6 +36,24 @@ const options: swaggerJsdoc.Options = {
         },
       },
       schemas: {
+        newMessageRequest: {
+          type: "object",
+          required: ["type", "text", "chatId"],
+          properties: {
+            type: {
+              type: "string",
+              example: "text",
+            },
+            content: {
+              type: "string",
+              example: "test1",
+            },
+            chatId: {
+              type: "string",
+              example: "095172b8-0265-11f1-9289-bc24110cce17",
+            },
+          },
+        },
         RegisterRequest: {
           type: "object",
           required: ["login", "username", "email", "password"],

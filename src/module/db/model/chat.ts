@@ -1,11 +1,12 @@
 import { Model, DataTypes, Sequelize, NonAttribute } from "sequelize";
+import { ChatMember } from "./../../../types/bdType.js";
 
 export class Chat extends Model {
   declare id: string;
   declare type: "private" | "group";
   declare name: string | null;
   declare avatar: string | null;
-
+  declare chatMembers?: NonAttribute<ChatMember[]>;
   static initModel(sequelize: Sequelize) {
     Chat.init(
       {

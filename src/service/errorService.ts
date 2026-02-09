@@ -13,4 +13,7 @@ export default class errorApi extends Error {
   static notFound(message: string) {
     return new errorApi(404, message);
   }
+  static forbidden(message: string) {
+    return new errorApi(403, message);
+  }
 }
