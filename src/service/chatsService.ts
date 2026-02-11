@@ -36,10 +36,11 @@ class chatsService {
               model: Message,
               limit: 20,
               attributes: ["id", "content", "type", "createdAt", "updatedAt", "userId", "chatId"],
+              order: [["createdAt", "DESC"]],
               include: [
                 {
                   model: User,
-                  attributes: ["username", "avatar"],
+                  attributes: ["id", "username", "avatar"],
                 },
               ],
             },
@@ -92,12 +93,13 @@ class chatsService {
         {
           required: false,
           model: Message,
+          order: [["createdAt", "DESC"]],
           limit: 20,
           attributes: ["id", "content", "type", "createdAt", "updatedAt", "userId", "chatId"],
           include: [
             {
               model: User,
-              attributes: ["username", "avatar"],
+              attributes: ["id", "username", "avatar"],
             },
           ],
         },
