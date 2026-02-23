@@ -130,6 +130,36 @@ class chatsService {
       },
     };
   }
+  async getMoreMessages(chatId: string, beforeId: number) {
+    const chatDataMSG = await Message.findAll({
+      where: {
+        chatId: chatId,
+        id: { [Op.lt]: beforeId },
+      },
+      limit: 20,
+      order: [["createdAt", "DESC"]],
+      attributes: ["id", "content", "type", "createdAt", "updatedAt", "userId", "chatId"],
+      include: [
+        {
+          model: User,
+          as: "_User",
+          attributes: ["id", "username", "avatar"],
+        },
+      ],
+    });
+    if (!chatDataMSG) throw errorApi.notFound("Чат не найден");
+    const chat = chatDataMSG.map((msg) => msg.get({ plain: true }));
+    if (chat && chat.length > 0) {
+      await Promise.all(
+        chat.map(async (msg: any) => {
+          if (msg._User) msg._User.avatar = await appService.normolizeUrlAvatarStr(msg._User.avatar);
+          delete msg.userId;
+          delete msg.chatId;
+        }),
+      );
+    }
+    return chat;
+  }
   async sendMessage(data: newMessageRequest) {
     const chat = await this.getChatById(data.chatId, data.userId);
     const io = getIO();
@@ -145,7 +175,7 @@ class chatsService {
         include: [
           {
             model: User,
-            attributes: ["username", "avatar"],
+            attributes: ["id", "username", "avatar"],
           },
         ],
       });
