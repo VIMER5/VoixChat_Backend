@@ -45,6 +45,7 @@ const ctx = await esbuild.context({
     "http",
     "swagger-jsdoc",
     "swagger-ui-express",
+    "livekit-server-sdk",
   ],
   plugins: [
     {
