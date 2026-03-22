@@ -7,10 +7,10 @@ const { apiKeySFU, apiSecretSFU, ttlTokenSFU } = process.env;
 class sfuService {
   async genTokenLive(data: LiveTokenRequest, userID: number): Promise<{ token: string }> {
     const chat = await chatsService.getChatById(data.roomName, userID);
-    console.log(chat);
+    // console.log(chat);
     const at = new AccessToken(apiKeySFU, apiSecretSFU, {
       identity: `user_${userID}`,
-      name: data.participantName,
+      name: data.roomName,
       ttl: ttlTokenSFU,
     });
     at.addGrant({

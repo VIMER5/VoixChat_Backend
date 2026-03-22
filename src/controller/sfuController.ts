@@ -12,7 +12,10 @@ class sfuController {
     try {
       if (!req.body) throw errorApi.badRequest("нет данных");
       if (!req.userId) throw errorApi.notFound("что-то пошло не так");
-      const { value, error } = getLiveTokenRequest.validate(req.body) as {
+      const { value, error } = getLiveTokenRequest.validate(req.body, {
+        abortEarly: true,
+        stripUnknown: true,
+      }) as {
         value: LiveTokenRequest;
         error?: Joi.ValidationError;
       };
