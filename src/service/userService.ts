@@ -1,5 +1,6 @@
 import { User } from "module/db/model/user.js";
 import errorApi from "./errorService.js";
+import appService from "./appService.js";
 const { cdn_url } = process.env;
 class userService {
   async getUser(userID: number) {
@@ -12,6 +13,15 @@ class userService {
       avatar: `${cdn_url}/image/${user.avatar}`,
       status: user.status,
       emailConfirmed: user.emailConfirmed,
+    };
+  }
+  async getUserByID(userID: number) {
+    const user = await User.findOne({ where: { id: userID } });
+    if (!user) throw errorApi.notFound("пользователь не найден");
+    return {
+      id: user.id,
+      userName: user.username,
+      avatar: await appService.normolizeUrlAvatarStr(user.avatar),
     };
   }
 }

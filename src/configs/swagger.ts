@@ -296,6 +296,10 @@ const options: swaggerJsdoc.Options = {
         name: "Chat",
         description: "Операции с чатами",
       },
+      {
+        name: "Voice",
+        description: "Операции с голосовыми каналами",
+      },
     ],
   },
   apis: [path.join(process.cwd(), "index.js"), path.join(process.cwd(), "dist/index.js")],

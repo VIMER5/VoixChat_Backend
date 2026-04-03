@@ -1,5 +1,7 @@
 import { WebhookEvent } from "livekit-server-sdk";
 import { poolRedis } from "module/redis/index.js";
+import { getIO } from "socket/index.js";
+import userService from "./userService.js";
 
 class liveKitWebhooksService {
   async roomStarted(event: WebhookEvent) {
@@ -15,6 +17,13 @@ class liveKitWebhooksService {
     if (!participantId) return;
     await this.existence(roomKey);
     const members = await this.getMembers(roomKey);
+    const io = getIO();
+    io.to(`chat:${roomKey}`).emit("disconnectedUserInVoice", {
+      body: {
+        id: roomKey,
+        userID: Number(participantId.split("_")[1]),
+      },
+    });
     const userIndex = members.findIndex((m: any) => m.id === participantId);
     if (userIndex !== -1) {
       await poolRedis.voiceInfo.redis.json.arrPop(roomKey, {
@@ -46,6 +55,14 @@ class liveKitWebhooksService {
       await poolRedis.voiceInfo.redis.json.set(roomKey, `$.members[${userIndex}]`, newUser);
     }
     await poolRedis.voiceInfo.redis.expire(roomKey, 86400);
+    const io = getIO();
+    const user = await userService.getUserByID(Number(participant.identity.split("_")[1]));
+    io.to(`chat:${roomKey}`).emit("connectedUserInVoice", {
+      body: {
+        id: roomKey,
+        userInfo: user,
+      },
+    });
   }
 
   private async getMembers(key: string): Promise<any[]> {

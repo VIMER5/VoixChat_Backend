@@ -8,6 +8,15 @@ import { getIO } from "socket/index.js";
 import { Message } from "module/db/model/message.js";
 import { newMessageRequest } from "types/ChatsType.js";
 class chatsService {
+  async getChatsID(userId: number) {
+    let data = await User.findByPk(userId, {
+      attributes: [],
+      include: [{ model: Chat, as: "myChat", attributes: ["id"], through: { attributes: [] } }],
+    });
+    if (!data) return null;
+    const result = data.get({ plain: true });
+    return result;
+  }
   async getMyChats(userId: number) {
     let data = await User.findByPk(userId, {
       attributes: ["login"],
