@@ -67,6 +67,7 @@ function validationENV() {
     "ttl_REFRESH_TOKEN",
     "urlVerifyEmail",
     "cdn_url",
+    "hostSFU",
   ];
   let errorENV: string[] = [];
   for (const name of envRequired) if (!process.env[name]) errorENV.push(`${name} Required`);

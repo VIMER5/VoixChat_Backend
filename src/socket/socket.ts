@@ -14,7 +14,7 @@ export const onConnection = async (io: Server, socket: CustomRequestSocketIO) =>
   onlineMap.set(userId, "online");
   if (userFriends && Array.isArray(userFriends)) {
     for (const user of userFriends) {
-      socket.join(`friend:${user.id}`);
+      await socket.join(`friend:${user.id}`);
       console.log(`User[${userId}] connected room: friend:${user.id}`);
     }
     socket.to(`friend:${userId}`).emit("friend-online", {
@@ -30,11 +30,11 @@ export const onConnection = async (io: Server, socket: CustomRequestSocketIO) =>
 
   if (userChat?.myChat) {
     for (const id of userChat.myChat) {
-      socket.join(`chat:${id.id}`);
+      await socket.join(`chat:${id.id}`);
       console.log(`User[${userId}] connected room: chat:${id.id}`);
     }
   }
-  socket.join(`user:${userId}`);
+  await socket.join(`user:${userId}`);
 
   socket.on("call-user", (data) => {
     console.log(data);
@@ -57,10 +57,11 @@ export const onConnection = async (io: Server, socket: CustomRequestSocketIO) =>
       from: socket.id,
     });
   });
-
+  io.to(`user:${userId}`).emit("socketReady", { status: "ready" });
   socket.on("disconnect", () => {
     onlineMap.set(userId, "offline");
     console.log(`User disconnected: ${userId}`);
+    io.to(`user:${userId}`).emit("socketReady", { status: "disconnect" });
     socket.to(`friend:${userId}`).emit("friend-offline", {
       userID: userId,
       status: "offline",
