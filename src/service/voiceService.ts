@@ -21,7 +21,7 @@ class voiceService {
               result[0].map(async (item: any) => {
                 const temp = Number(item.id.split("_")[1]);
 
-                return await userService.getUserByID(temp);
+                return { ...(await userService.getUserByID(temp)), status: item.status };
               }),
             );
             return { ...id, members: memberIds };
@@ -32,6 +32,29 @@ class voiceService {
     );
 
     return data.filter((item) => item != null);
+  }
+
+  async getVoiceInfoByID(chatID: string, userID: number) {
+    const data = await chatsService.getChatById(chatID, userID);
+    const types = await poolRedis.voiceInfo.redis.json.type(chatID, {
+      path: "$",
+    });
+    if (Array.isArray(types) && types[0] === "object") {
+      let result = await poolRedis.voiceInfo.redis.json.get(chatID, {
+        path: "$.members",
+      });
+      if (result && Array.isArray(result) && result[0] && Array.isArray(result[0])) {
+        const memberIds = await Promise.all(
+          result[0].map(async (item: any) => {
+            const temp = Number(item.id.split("_")[1]);
+
+            return { ...(await userService.getUserByID(temp)), status: item.status };
+          }),
+        );
+        return { id: chatID, members: memberIds };
+      }
+    }
+    return null;
   }
 }
 

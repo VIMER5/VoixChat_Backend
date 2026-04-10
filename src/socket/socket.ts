@@ -57,6 +57,7 @@ export const onConnection = async (io: Server, socket: CustomRequestSocketIO) =>
       from: socket.id,
     });
   });
+
   io.to(`user:${userId}`).emit("socketReady", { status: "ready" });
   socket.on("disconnect", () => {
     onlineMap.set(userId, "offline");

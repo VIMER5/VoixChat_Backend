@@ -43,6 +43,7 @@ class liveKitWebhooksService {
       id: participant.identity,
       name: participant.name,
       joinedAt: Date.now(),
+      status: "connected",
     };
     await this.existence(roomKey);
     let members = await this.getMembers(roomKey);
@@ -56,7 +57,10 @@ class liveKitWebhooksService {
     }
     await poolRedis.voiceInfo.redis.expire(roomKey, 86400);
     const io = getIO();
-    const user = await userService.getUserByID(Number(participant.identity.split("_")[1]));
+    const user = {
+      ...(await userService.getUserByID(Number(participant.identity.split("_")[1]))),
+      status: newUser.status,
+    };
     io.to(`chat:${roomKey}`).emit("connectedUserInVoice", {
       body: {
         id: roomKey,

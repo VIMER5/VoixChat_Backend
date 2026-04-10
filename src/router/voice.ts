@@ -3,4 +3,5 @@ import express from "express";
 
 const voice = express.Router();
 voice.get("/info", voiceController.getVoiceInfo);
+voice.post("/info", voiceController.getVoiceInfoByID);
 export default voice;
