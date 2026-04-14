@@ -7,7 +7,7 @@ export class Message extends Model {
   declare content: string;
   declare userId: number;
   declare chatId: string;
-  declare type: "text" | "image" | "file";
+  declare type: "text" | "image" | "file" | "system";
   declare updatedAt?: Date;
   declare createdAt?: Date;
   declare _User?: NonAttribute<User>;
@@ -24,7 +24,7 @@ export class Message extends Model {
             key: "id",
           },
         },
-        type: { type: DataTypes.ENUM("text", "image", "file"), defaultValue: "text" },
+        type: { type: DataTypes.ENUM("text", "image", "file", "system"), defaultValue: "text" },
         userId: {
           type: DataTypes.INTEGER,
           allowNull: false,
