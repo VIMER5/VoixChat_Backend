@@ -157,7 +157,7 @@ class authController {
         res.clearCookie("refreshToken");
         throw errorApi.unauthorized("Токен недействительный");
       }
-      const tokens = await tokenService.createdToken(payLoad.userId, payLoad.login);
+      const tokens = await tokenService.createdToken(payLoad.userId, payLoad.login, payLoad.role, payLoad.isBanned);
       if (tokens) {
         res.cookie("refreshToken", tokens.refreshToken, {
           maxAge: 172800000,
@@ -232,28 +232,28 @@ class authController {
   }
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
-      throw new Error("kjk");
+      res.clearCookie("refreshToken");
+      res.status(200).json({ message: "Успешный выход" });
     } catch (err) {
       next(err);
     }
   }
   async forgotPassword(req: Request, res: Response, next: NextFunction) {
     try {
-      throw new Error("kjk");
+      const { email } = req.body;
+      if (!email) throw errorApi.badRequest("Нужен email");
+      await authService.forgotPassword(email);
+      res.status(200).json({ message: "Письмо отправлено" });
     } catch (err) {
       next(err);
     }
   }
   async resetPassword(req: Request, res: Response, next: NextFunction) {
     try {
-      res.status(200).json(req.params);
-    } catch (err) {
-      next(err);
-    }
-  }
-  async password(req: Request, res: Response, next: NextFunction) {
-    try {
-      throw new Error("kjk");
+      const { token, password } = req.body;
+      if (!token || !password) throw errorApi.badRequest("Недостаточно данных");
+      await authService.resetPassword(token, password);
+      res.status(200).json({ message: "Пароль успешно изменен" });
     } catch (err) {
       next(err);
     }

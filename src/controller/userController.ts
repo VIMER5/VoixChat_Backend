@@ -34,6 +34,29 @@ class user {
       next(err);
     }
   }
+
+  async updateProfile(req: CustomRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.userId) throw errorApi.notFound("что-то пошло не так");
+      const { username, avatar } = req.body;
+      const data = await userService.updateProfile(req.userId, { username, avatar });
+      res.status(200).json(data);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async changePassword(req: CustomRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.userId) throw errorApi.notFound("что-то пошло не так");
+      const { passwordOld, passwordNew } = req.body;
+      const data = await userService.changePassword(req.userId, passwordOld, passwordNew);
+      res.status(200).json(data);
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async getCurrentUser2(req: CustomRequest, res: Response, next: NextFunction) {
     try {
       if (!req.userId) throw errorApi.notFound("что-то пошло не так");

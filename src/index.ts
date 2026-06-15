@@ -20,7 +20,7 @@ await connectionAllRedis(poolRedis);
 await connection();
 
 const app = express();
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: "https://www.voixchat.ru", credentials: true }));
 app.use(cookieParser());
 app.use(express.json());
 
@@ -32,7 +32,7 @@ const httpServer = createServer(app);
 initSocketIO(
   new Server(httpServer, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: "https://www.voixchat.ru",
       credentials: true,
     },
   }),
@@ -66,6 +66,7 @@ function validationENV() {
     "token_refreshSecretKey",
     "ttl_REFRESH_TOKEN",
     "urlVerifyEmail",
+    "urlResetPassword",
     "cdn_url",
     "hostSFU",
   ];

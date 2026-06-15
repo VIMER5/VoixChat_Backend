@@ -2,7 +2,7 @@ import { CustomRequest } from "types/customRequestType.js";
 import { Response, NextFunction } from "express";
 import errorApi from "service/errorService.js";
 import chatsService from "service/chatsService.js";
-import { newMessageRequest } from "validators/chat.validator.js";
+import { newMessageRequest, createGroupRequest } from "validators/chat.validator.js";
 class chatController {
   /**
    * @swagger
@@ -211,6 +211,59 @@ class chatController {
       if (!req.userId) throw errorApi.badRequest("что-то пошло не так");
       if (!chatId || !beforeId) throw errorApi.badRequest("нет данных");
       const data = await chatsService.getMoreMessages(chatId, beforeId);
+      res.status(200).json(data);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  /**
+   * @swagger
+   * /api/user/chat/createGroup:
+   *   post:
+   *     summary: Создать групповой чат
+   *     tags: [Chat]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [name, members]
+   *             properties:
+   *               name:
+   *                 type: string
+   *                 description: Название группы
+   *               members:
+   *                 type: array
+   *                 items:
+   *                   type: number
+   *                 description: Список ID участников
+   *               avatar:
+   *                 type: string
+   *                 description: ID аватара (опционально)
+   *     responses:
+   *       200:
+   *         description: Группа успешно создана
+   *       400:
+   *         description: Ошибка валидации
+   */
+  async createGroupChat(req: CustomRequest, res: Response, next: NextFunction) {
+    try {
+      const body = req.body;
+      const userId = req.userId;
+      if (!userId) throw errorApi.badRequest("что-то пошло не так");
+
+      const { error, value } = createGroupRequest.validate(body, {
+        abortEarly: false,
+        stripUnknown: true,
+      });
+
+      if (error) throw errorApi.badRequest(error.message);
+
+      const data = await chatsService.createGroupChat(userId, value.name, value.members, value.avatar);
       res.status(200).json(data);
     } catch (e) {
       next(e);

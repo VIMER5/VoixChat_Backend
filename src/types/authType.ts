@@ -13,4 +13,6 @@ export interface dataLoginUser {
 export interface TokenPayLoad {
   userId: number;
   login: string;
+  role: "user" | "admin";
+  isBanned: boolean;
 }

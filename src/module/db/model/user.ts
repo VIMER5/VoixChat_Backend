@@ -10,6 +10,8 @@ export class User extends Model {
   declare avatar: string;
   declare status: string;
   declare emailConfirmed: boolean;
+  declare role: "user" | "admin";
+  declare isBanned: boolean;
   declare Friends?: NonAttribute<User[]>;
   declare AddedBy?: NonAttribute<User[]>;
   declare myChat?: NonAttribute<ChatInfo[]>;
@@ -25,6 +27,8 @@ export class User extends Model {
         avatar: { type: DataTypes.STRING, defaultValue: null },
         status: { type: DataTypes.STRING, allowNull: true, defaultValue: null },
         emailConfirmed: { type: DataTypes.BOOLEAN, defaultValue: false },
+        role: { type: DataTypes.ENUM("user", "admin"), defaultValue: "user" },
+        isBanned: { type: DataTypes.BOOLEAN, defaultValue: false },
       },
       { sequelize: sequelize, tableName: "users" },
     );

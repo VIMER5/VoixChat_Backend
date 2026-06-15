@@ -9,7 +9,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node --env-file=.env esbuild.config.js --watch",
-    "build": "node --env-file=.env esbuild.config.js"
+    "build": "node --env-file=.env esbuild.config.js",
+    "docker:build": "docker build -t backend-voixchat:1.0 .",
+    "docker:run": "docker run -d --name bc-voixchat -p 3030:3030 --env-file .env backend-voixchat:1.0",
+    "docker:save": "docker save backend-voixchat:1.0 -o backend-voixchat.tar",
+    "docker:load": "docker load -i backend-voixchat.tar"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",

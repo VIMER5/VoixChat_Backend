@@ -58,6 +58,13 @@ export const onConnection = async (io: Server, socket: CustomRequestSocketIO) =>
     });
   });
 
+  socket.on("join-chat", (data) => {
+    if (data.chatId) {
+      socket.join(`chat:${data.chatId}`);
+      console.log(`User[${userId}] dynamically joined room: chat:${data.chatId}`);
+    }
+  });
+
   io.to(`user:${userId}`).emit("socketReady", { status: "ready" });
   socket.on("disconnect", () => {
     onlineMap.set(userId, "offline");

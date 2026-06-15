@@ -3,6 +3,7 @@ import { User } from "module/db/model/user.js";
 import { Friendship } from "module/db/model/friendship.js";
 import { Op } from "sequelize";
 import { getIO } from "socket/index.js";
+import chatsService from "./chatsService.js";
 const { cdn_url } = process.env;
 type AssociationKeys = "Friends" | "AddedBy";
 class friendService {
@@ -96,6 +97,61 @@ class friendService {
       if (friends.Friends && friends.Friends.length > 0) return await this.normolizeUrlAvatar(friends.Friends);
     }
     return [];
+  }
+
+  async acceptFriend(userId: number, friendId: number) {
+    const friendship = await Friendship.findOne({
+      where: {
+        userId: friendId,
+        friendId: userId,
+        status: "pending",
+      },
+    });
+    if (!friendship) throw errorApi.badRequest("Запрос не найден");
+    friendship.status = "accepted";
+    await friendship.save();
+
+    // Создаем приватный чат при принятии в друзья
+    const chat = await chatsService.createPrivateChat(userId, friendId);
+
+    const io = getIO();
+    // Уведомляем обоих пользователей о новом чате
+    io.to(`user:${userId}`).emit("newChat", { chatId: chat.id });
+    io.to(`user:${friendId}`).emit("newChat", { chatId: chat.id });
+
+    io.to(`user:${friendId}`).emit("friendAccepted", {
+      friendId: userId,
+    });
+
+    return friendship;
+  }
+
+  async declineFriend(userId: number, friendId: number) {
+    const friendship = await Friendship.findOne({
+      where: {
+        userId: friendId,
+        friendId: userId,
+        status: "pending",
+      },
+    });
+    if (!friendship) throw errorApi.badRequest("Запрос не найден");
+    await friendship.destroy();
+    return { success: true };
+  }
+
+  async removeFriend(userId: number, friendId: number) {
+    const friendship = await Friendship.findOne({
+      where: {
+        [Op.or]: [
+          { userId: userId, friendId: friendId },
+          { userId: friendId, friendId: userId },
+        ],
+        status: "accepted",
+      },
+    });
+    if (!friendship) throw errorApi.badRequest("Друг не найден");
+    await friendship.destroy();
+    return { success: true };
   }
 }
 

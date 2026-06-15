@@ -2,11 +2,12 @@ import JWT from "jsonwebtoken";
 import { TokenPayLoad } from "./../types/authType.js";
 import errorApi from "./errorService.js";
 class tokenService {
-  async createdToken(userId: number, login: string) {
-    const accessToken = JWT.sign({ userId: userId, login: login }, process.env.token_accessSecretKey!, {
+  async createdToken(userId: number, login: string, role: "user" | "admin", isBanned: boolean) {
+    const payload: TokenPayLoad = { userId, login, role, isBanned };
+    const accessToken = JWT.sign(payload, process.env.token_accessSecretKey!, {
       expiresIn: Number(process.env.ttl_ACCESS_TOKEN),
     });
-    const refreshToken = JWT.sign({ userId: userId, login: login }, process.env.token_refreshSecretKey!, {
+    const refreshToken = JWT.sign(payload, process.env.token_refreshSecretKey!, {
       expiresIn: Number(process.env.ttl_REFRESH_TOKEN),
     });
     return { accessToken, refreshToken };

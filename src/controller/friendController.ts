@@ -175,6 +175,122 @@ class friendController {
       next(err);
     }
   }
+
+  /**
+   * @swagger
+   * /api/user/friend/accept:
+   *   patch:
+   *     summary: Принять запрос в друзья
+   *     description: Принимает входящий запрос на добавление в друзья
+   *     tags: [Friends]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [friendId]
+   *             properties:
+   *               friendId:
+   *                 type: number
+   *                 description: ID пользователя, чей запрос принимается
+   *     responses:
+   *       200:
+   *         description: Запрос принят
+   *       400:
+   *         description: Запрос не найден или некорректные данные
+   *       401:
+   *         description: Пользователь не авторизован
+   */
+  async acceptFriendRequest(req: CustomRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.userId) throw errorApi.badRequest("что-то пошло не так");
+      const { friendId } = req.body;
+      if (!friendId) throw errorApi.badRequest("Не указан ID друга");
+      const result = await friendService.acceptFriend(req.userId, friendId);
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
+   * @swagger
+   * /api/user/friend/decline:
+   *   delete:
+   *     summary: Отклонить запрос в друзья
+   *     description: Отклоняет входящий запрос на добавление в друзья
+   *     tags: [Friends]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [friendId]
+   *             properties:
+   *               friendId:
+   *                 type: number
+   *                 description: ID пользователя, чей запрос отклоняется
+   *     responses:
+   *       200:
+   *         description: Запрос отклонен
+   *       400:
+   *         description: Запрос не найден или некорректные данные
+   */
+  async declineFriendRequest(req: CustomRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.userId) throw errorApi.badRequest("что-то пошло не так");
+      const { friendId } = req.body;
+      if (!friendId) throw errorApi.badRequest("Не указан ID друга");
+      const result = await friendService.declineFriend(req.userId, friendId);
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
+   * @swagger
+   * /api/user/friend/:
+   *   delete:
+   *     summary: Удалить из друзей
+   *     description: Удаляет пользователя из списка друзей
+   *     tags: [Friends]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [friendId]
+   *             properties:
+   *               friendId:
+   *                 type: number
+   *                 description: ID пользователя, которого нужно удалить
+   *     responses:
+   *       200:
+   *         description: Пользователь удален из друзей
+   *       400:
+   *         description: Друг не найден
+   */
+  async removeFriend(req: CustomRequest, res: Response, next: NextFunction) {
+    try {
+      if (!req.userId) throw errorApi.badRequest("что-то пошло не так");
+      const { friendId } = req.body;
+      if (!friendId) throw errorApi.badRequest("Не указан ID друга");
+      const result = await friendService.removeFriend(req.userId, friendId);
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 export default new friendController();

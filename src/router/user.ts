@@ -6,6 +6,8 @@ import chat from "./chat.js";
 const user = express.Router();
 
 user.get("/", userController.getCurrentUser);
+user.patch("/profile", userController.updateProfile);
+user.patch("/password", userController.changePassword);
 // user.get("/:name", userController.getCurrentUser2);
 
 user.use("/friend", friend);

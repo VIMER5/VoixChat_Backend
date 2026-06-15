@@ -38,7 +38,7 @@ class authService {
     const user = await User.findOne({ where: { login: data.login } });
     if (user) {
       if (await bcrypt.compare(data.password, user.password)) {
-        return await tokenService.createdToken(user.id, user.login);
+        return await tokenService.createdToken(user.id, user.login, user.role, user.isBanned);
       }
     }
     throw errorApi.badRequest("Неверный логин или пароль");
@@ -47,6 +47,25 @@ class authService {
     const user = await User.findOne({ where: { id: userID } });
     if (!user) throw errorApi.notFound("Пользователь не найден");
     await mailerService.sendVerifyEmailURL(user.email, user.login);
+  }
+
+  async forgotPassword(email: string) {
+    const user = await User.findOne({ where: { email } });
+    if (!user) throw errorApi.notFound("Пользователь с такой почтой не найден");
+    await mailerService.sendResetPasswordURL(user.email, user.login);
+    return user.email;
+  }
+
+  async resetPassword(token: string, passwordNew: string) {
+    const mail = await poolRedis.сonfirmationСodes.redis.get(token);
+    if (!mail) throw errorApi.notFound("Ссылка для сброса пароля недействительна или истекла");
+    const user = await User.findOne({ where: { email: mail } });
+    if (!user) throw errorApi.notFound("Пользователь не найден");
+    
+    const hashPass = await bcrypt.hash(passwordNew, saltbcrypt);
+    await user.update({ password: hashPass });
+    await poolRedis.сonfirmationСodes.redis.del(token);
+    return true;
   }
 
   async verifyEmailURL(token: string) {

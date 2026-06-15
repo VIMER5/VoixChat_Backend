@@ -1,6 +1,7 @@
 import { Chat } from "module/db/model/chat.js";
 import { ChatParticipant } from "module/db/model/chatParticipant.js";
 import { User } from "module/db/model/user.js";
+import { Friendship } from "module/db/model/friendship.js";
 import { Op } from "sequelize";
 import appService from "./appService.js";
 import errorApi from "./errorService.js";
@@ -117,6 +118,27 @@ class chatsService {
 
     if (!chatCurrent) throw errorApi.notFound("Чат не найден");
 
+    if (chatCurrent.type === "private") {
+      const participants = await ChatParticipant.findAll({
+        where: { chatId },
+      });
+      if (participants.length === 2) {
+        const otherParticipant = participants.find((p) => p.userId !== userId);
+        if (otherParticipant) {
+          const friendship = await Friendship.findOne({
+            where: {
+              [Op.or]: [
+                { userId: userId, friendId: otherParticipant.userId },
+                { userId: otherParticipant.userId, friendId: userId },
+              ],
+              status: "accepted",
+            },
+          });
+          if (!friendship) throw errorApi.forbidden("Вы должны быть в друзьях, чтобы общаться в этом чате");
+        }
+      }
+    }
+
     const chat = chatCurrent.get({ plain: true });
     chat.avatar = await appService.normolizeUrlAvatarStr(chat.avatar);
     if (chat.chatMembers) {
@@ -207,6 +229,77 @@ class chatsService {
       });
       return "ok";
     }
+  }
+
+  async createPrivateChat(user1Id: number, user2Id: number) {
+    // Проверяем, существует ли уже приватный чат между этими пользователями
+    // Находим чаты первого пользователя
+    const user1Chats = await ChatParticipant.findAll({
+      where: { userId: user1Id },
+      attributes: ["chatId"],
+    });
+
+    if (user1Chats.length > 0) {
+      const chatIds = user1Chats.map((cp) => cp.chatId);
+
+      // Ищем среди этих чатов те, где есть второй пользователь и тип чата - private
+      const existingChat = await Chat.findOne({
+        where: {
+          id: { [Op.in]: chatIds },
+          type: "private",
+        },
+        include: [
+          {
+            model: User,
+            as: "chatMembers",
+            where: { id: user2Id },
+            required: true,
+            through: { attributes: [] },
+          },
+        ],
+      });
+
+      if (existingChat) return existingChat;
+    }
+
+    // Если чата нет, создаем новый
+    const newChat = await Chat.create({
+      type: "private",
+    });
+
+    await ChatParticipant.bulkCreate([
+      { chatId: newChat.id, userId: user1Id },
+      { chatId: newChat.id, userId: user2Id },
+    ]);
+
+    return newChat;
+  }
+
+  async createGroupChat(userId: number, name: string, members: number[], avatar?: string) {
+    // Создаем сам чат
+    const newChat = await Chat.create({
+      type: "group",
+      name: name,
+      avatar: avatar || null,
+    });
+
+    // Формируем список участников (создатель + приглашенные)
+    const allMembers = Array.from(new Set([userId, ...members]));
+    
+    await ChatParticipant.bulkCreate(
+      allMembers.map(memberId => ({
+        chatId: newChat.id,
+        userId: memberId
+      }))
+    );
+
+    // Уведомляем всех участников через сокеты о новом чате
+    const io = getIO();
+    allMembers.forEach(memberId => {
+      io.to(`user:${memberId}`).emit("newChat", { chatId: newChat.id });
+    });
+
+    return newChat;
   }
 }
 

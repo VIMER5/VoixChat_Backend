@@ -9,8 +9,11 @@ export default async function (req: CustomRequest, res: Response, next: NextFunc
   const access = authorization.split(" ")[1];
   const payLoad = await tokenService.isValidAccessToken(access);
   if (typeof payLoad == "boolean") throw errorService.unauthorized("Токен недействительный");
+  if (payLoad.isBanned) throw errorService.forbidden("Вы забанены");
   req.userId = payLoad.userId;
   req.login = payLoad.login;
+  req.role = payLoad.role;
+  req.isBanned = payLoad.isBanned;
   next();
 }
 export async function guardSocketIo(socket: CustomRequestSocketIO, next: any) {
@@ -18,7 +21,10 @@ export async function guardSocketIo(socket: CustomRequestSocketIO, next: any) {
   if (!token) return next(new Error("Unauthorized"));
   const payLoad = await tokenService.isValidAccessToken(token);
   if (typeof payLoad == "boolean") return next(new Error("Unauthorized"));
+  if (payLoad.isBanned) return next(new Error("You are banned"));
   socket.userId = payLoad.userId;
   socket.login = payLoad.login;
+  socket.role = payLoad.role;
+  socket.isBanned = payLoad.isBanned;
   next();
 }
