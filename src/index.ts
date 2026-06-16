@@ -20,6 +20,7 @@ await connectionAllRedis(poolRedis);
 await connection();
 
 const app = express();
+// app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(cors({ origin: "https://www.voixchat.ru", credentials: true }));
 app.use(cookieParser());
 app.use(express.json());
@@ -37,6 +38,14 @@ initSocketIO(
     },
   }),
 );
+// initSocketIO(
+//   new Server(httpServer, {
+//     cors: {
+//       origin: "http://localhost:5173",
+//       credentials: true,
+//     },
+//   }),
+// );
 let io = getIO();
 io.use(guardSocketIo);
 io.on("connection", (socket) => onConnection(io, socket));

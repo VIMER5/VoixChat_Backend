@@ -9,6 +9,7 @@ class userService {
     const user = await User.findOne({ where: { id: userID } });
     if (!user) throw errorApi.notFound("пользователь не найден");
     return {
+      id: user.id,
       login: user.login,
       userName: user.username,
       email: user.email,

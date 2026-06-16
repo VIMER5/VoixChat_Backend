@@ -12,7 +12,7 @@ class sfuService {
     // console.log(chat);
     const at = new AccessToken(apiKeySFU, apiSecretSFU, {
       identity: `user_${userID}`,
-      name: data.roomName,
+      name: chat.name || `User ${userID}`,
       ttl: ttlTokenSFU,
     });
     at.addGrant({
@@ -20,6 +20,7 @@ class sfuService {
       room: data.roomName,
       canPublish: true,
       canSubscribe: true,
+      canPublishData: true,
     });
     if (chat.type == "private" && participants.length === 0) {
       const io = getIO();

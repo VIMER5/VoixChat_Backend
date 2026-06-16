@@ -84,6 +84,12 @@ class authController {
           sameSite: "lax",
           secure: true,
         });
+        res.cookie("ff", "on", {
+          maxAge: 172800000,
+          httpOnly: false,
+          sameSite: "lax",
+          secure: true,
+        });
         return res.status(200).json({ access: token.accessToken });
       }
     } catch (err) {
@@ -165,6 +171,12 @@ class authController {
           sameSite: "lax",
           secure: true,
         });
+        res.cookie("ff", "on", {
+          maxAge: 172800000,
+          httpOnly: false,
+          sameSite: "lax",
+          secure: true,
+        });
         return res.status(200).json({ access: tokens.accessToken });
       }
       throw new Error();
@@ -233,6 +245,7 @@ class authController {
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
       res.clearCookie("refreshToken");
+      res.clearCookie("ff");
       res.status(200).json({ message: "Успешный выход" });
     } catch (err) {
       next(err);
